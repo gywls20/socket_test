@@ -1,0 +1,46 @@
+//- extends layout
+
+//- block content
+//-   h1= title
+//-   p Welcome to #{title}
+//-   input(type="text" id="sendMsg")
+//-   button(type="button") 채팅 버튼
+//-   ul(id="msg")
+
+html
+  head
+    title Chat App
+    script(src="/socket.io/socket.io.js")
+    script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+    script.
+      var socket = io.connect('http://localhost:3000');
+      var msgform = document.getElementById('msgform');
+      // socket.on 함수로 서버에서 전달하는 신호를 수신
+      socket.on('usercount', (count) => {
+          var userCounter = document.getElementById('usercount');
+          userCounter.innerText = "현재 " + count + "명이 서버에 접속해있습니다.";
+      });
+      // 메시지 수신시 HTML에 메시지 내용 작성
+      socket.on('message', (msg) => {
+          var messageList = document.getElementById('messages');
+          var messageTag = document.createElement("li");
+          messageTag.innerText = msg;
+          messageList.appendChild(messageTag);
+          
+      });
+      function sendMessage() {
+        var msginput = document.getElementById("msginput");
+        var msg = msginput.value;
+        msginput.value = ""; //메세지전송후 입력창 비우기
+        socket.emit('message', msg);
+        return false;
+      }
+
+  body
+    h1 Chat App
+    ul#messages
+      li#usercount
+    form#msgform
+      input#msginput(type="text")
+      button(type="submit" onclick="sendMessage()") Send
+    div#result
